@@ -1,17 +1,20 @@
+// models/Card.js
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const boardSchema = new Schema({
-  name: {
+const cardSchema = new mongoose.Schema({
+  title: {
     type: String,
     required: true
   },
-  lists: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'List'
-    }
-  ]
+  description: {
+    type: String
+  },
+  list: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List'
+  }
 });
 
-module.exports = mongoose.model('Board', boardSchema);
+const Card = mongoose.model('Card', cardSchema);
+
+module.exports = Card;
