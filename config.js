@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/trello_clone')
-  .then(() => console.log('Conectado ao MongoDB!'))
-  .catch((error) => console.error('Erro ao conectar ao MongoDB:', error));
+mongoose.connect('mongodb://127.0.0.1:27017/teste3', { // Use o nome do banco de dados correto
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'Erro na conexão com o MongoDB:'));
+db.once('open', () => {
+  console.log('Conectado ao MongoDB');
+});
+
+module.exports = db;

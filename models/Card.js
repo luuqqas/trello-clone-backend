@@ -1,15 +1,13 @@
+// models/Card.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const cardSchema = new Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  }
+const CardSchema = new Schema({
+  title: String,
+  description: String,
+  list: { type: mongoose.Schema.Types.ObjectId, ref: 'List' }
 });
 
-module.exports = mongoose.model('Card', cardSchema);
+const Card = mongoose.models.Card || mongoose.model('Card', CardSchema);
+
+module.exports = Card;

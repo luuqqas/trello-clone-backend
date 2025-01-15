@@ -7,7 +7,7 @@ const boardRoutes = require('./routes/boards');
 const app = express();
 const PORT = 3000;
 
-mongoose.connect('mongodb://127.0.0.1:27017/trello_clone', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb://127.0.0.1:27017/teste3', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conectado ao MongoDB!'))
   .catch((error) => console.error('Erro ao conectar ao MongoDB:', error));
 
