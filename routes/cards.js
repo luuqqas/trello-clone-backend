@@ -33,6 +33,42 @@ router.get('/:listId', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/:id/move', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newListId } = req.body;
+
+    const card = await Card.findById(id);
+    if (!card) {
+      return res.status(404).json({ error: 'Cartão não encontrado' });
+    }
+
+    const oldList = await List.findById(card.list);
+    const newList = await List.findById(newListId);
+
+    if (!newList) {
+      return res.status(404).json({ error: 'Nova lista não encontrada' });
+    }
+
+    // Remover o cartão da lista antiga
+    oldList.cards = oldList.cards.filter((cardId) => cardId.toString() !== id);
+    await oldList.save();
+
+    // Adicionar o cartão à nova lista
+    newList.cards.push(id);
+    await newList.save();
+
+    // Atualizar a lista no cartão
+    card.list = newListId;
+    await card.save();
+
+    res.status(200).json(card);
+  } catch (error) {
+    console.error('Erro ao mover cartão:', error);
+    res.status(500).json({ error: 'Erro ao mover cartão' });
+  }
+});
+
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const card = await Card.findById(req.params.id);

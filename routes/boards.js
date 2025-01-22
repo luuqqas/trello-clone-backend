@@ -48,7 +48,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado' });
     }
 
-    if (!board.createdBy || !board.createdBy.id) {
+    if (!board.createdBy || !board.createdBy._id) {
       return res.status(500).json({ error: 'Erro ao identificar o criador do quadro' });
     }
 
@@ -59,7 +59,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado' });
     }
 
-    await Board.deleteOne({ id: req.params.id }); // Use deleteOne para remover o quadro
+    await Board.deleteOne({ id: req.params._id }); // Use deleteOne para remover o quadro
     res.status(200).json({ message: 'Quadro removido com sucesso' });
   } catch (error) {
     console.error('Erro ao remover quadro:', error);
