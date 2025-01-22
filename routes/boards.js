@@ -32,7 +32,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/delete/:id', authenticateToken, async (req, res) => {
   try {
     console.log('Requisição para remover quadro recebida:', req.params.id);
     console.log('Usuário autenticado:', req.user);
