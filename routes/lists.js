@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const List = require('../models/List');
+const Card = require('../models/Card');
 const Board = require('../models/Board');
 const { authenticateToken } = require('./auth');
 
@@ -33,13 +34,65 @@ router.get('/:boardId', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/:id/move', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newIndex } = req.body;
+
+    const list = await List.findById(id);
+    if (!list) {
+      return res.status(404).json({ error: 'Lista não encontrada' });
+    }
+
+    const board = await Board.findById(list.board);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    // Remover a lista da posição atual
+    board.lists.pull(list._id);
+    await board.save();
+
+    // Adicionar a lista na nova posição
+    board.lists.splice(newIndex, 0, list._id);
+    await board.save();
+
+    res.status(200).json(list);
+  } catch (error) {
+    console.error('Erro ao mover lista:', error);
+    res.status(500).json({ error: 'Erro ao mover lista' });
+  }
+});
+
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+    const list = await List.findById(id);
+    if (!list) {
+      return res.status(404).json({ error: 'Lista não encontrada' });
+    }
+    list.title = title;
+    await list.save();
+    res.status(200).json(list);
+  } catch (error) {
+    console.error('Erro ao atualizar lista:', error);
+    res.status(500).json({ error: 'Erro ao atualizar lista' });
+  }
+});
+
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
     if (!list) {
       return res.status(404).json({ error: 'Lista não encontrada' });
     }
-    await list.remove();
+
+    // Remover todos os cartões contidos na lista
+    await Card.deleteMany({ list: list._id });
+
+    await list.deleteOne(); // Use deleteOne para remover a lista
+
     res.status(200).json({ message: 'Lista removida com sucesso' });
   } catch (error) {
     console.error('Erro ao remover lista:', error);
