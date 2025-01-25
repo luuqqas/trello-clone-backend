@@ -10,12 +10,12 @@ router.post('/', authenticateToken, async (req, res) => {
     const { title, boardId } = req.body;
     const newList = new List({ title, board: boardId });
     await newList.save();
-    
+
     // Adicionar a lista ao quadro
     const board = await Board.findById(boardId);
     board.lists.push(newList.id);
     await board.save();
-    
+
     res.status(201).json(newList);
   } catch (error) {
     console.error('Erro ao criar lista:', error);
@@ -34,6 +34,7 @@ router.get('/:boardId', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para mover uma lista dentro de um quadro
 router.put('/:id/move', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;

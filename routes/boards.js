@@ -60,25 +60,23 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 });
 
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:boardId/lists/reorder', authenticateToken, async (req, res) => {
   try {
-    const { title, backgroundColor, textColor, favorite } = req.body;
-    const board = await Board.findById(req.params.id);
+    const { boardId } = req.params;
+    const { listsOrder } = req.body;
+
+    const board = await Board.findById(boardId);
     if (!board) {
       return res.status(404).json({ error: 'Quadro não encontrado' });
     }
-    if (board.createdBy.toString() !== req.user.id) {
-      return res.status(403).json({ error: 'Acesso negado' });
-    }
-    board.title = title || board.title;
-    board.backgroundColor = backgroundColor || board.backgroundColor;
-    board.textColor = textColor || board.textColor;
-    board.favorite = favorite !== undefined ? favorite : board.favorite;
+
+    board.lists = listsOrder;
     await board.save();
+
     res.status(200).json(board);
   } catch (error) {
-    console.error('Erro ao atualizar quadro:', error);
-    res.status(500).json({ error: 'Erro ao atualizar quadro' });
+    console.error('Erro ao reordenar listas:', error);
+    res.status(500).json({ error: 'Erro ao reordenar listas' });
   }
 });
 
