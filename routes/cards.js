@@ -28,7 +28,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-router.put('/:id/move', authenticateToken, async (req, res) => {
+router.put('/move/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { newListId, newIndex } = req.body;

@@ -60,6 +60,60 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params; // Obter o ID do quadro da URL
+    const { title } = req.body; // Obter o título do corpo da requisição
+
+    if (!title) {
+      return res.status(400).json({ error: 'O título é obrigatório.' });
+    }
+
+    // Atualizar o título do quadro
+    const board = await Board.findByIdAndUpdate(
+      id,
+      { title }, // Somente o título será atualizado
+      { new: true } // Retorna o documento atualizado
+    );
+
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado.' });
+    }
+
+    res.status(200).json({ message: 'Título do quadro atualizado com sucesso.', board });
+  } catch (error) {
+    console.error('Erro ao atualizar título do quadro:', error);
+    res.status(500).json({ error: 'Erro ao atualizar título do quadro.' });
+  }
+});
+
+
+router.put('/color/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { backgroundColor, textColor } = req.body;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    if (backgroundColor !== undefined) {
+      board.backgroundColor = backgroundColor;
+    }
+    if (textColor !== undefined) {
+      board.textColor = textColor;
+    }
+
+    await board.save();
+    res.status(200).json(board);
+  } catch (error) {
+    console.error('Erro ao atualizar quadro:', error);
+    res.status(500).json({ error: 'Erro ao atualizar quadro' });
+  }
+});
+
+
 router.put('/:boardId/lists/reorder', authenticateToken, async (req, res) => {
   try {
     const { boardId } = req.params;
