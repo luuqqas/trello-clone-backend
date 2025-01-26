@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const BoardSchema = new Schema({
   title: {
     type: String,
-    required: true 
+    required: true
   },
   backgroundColor: {
     type: String,
@@ -17,7 +17,7 @@ const BoardSchema = new Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true 
+    required: true
   },
   lists: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -25,8 +25,19 @@ const BoardSchema = new Schema({
   }],
   favorite: {
     type: Boolean,
-    default: false 
-  }
+    default: false
+  },
+  sharedWith: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    mode: {
+      type: String,
+      enum: ['edit', 'view'],
+      default: 'view'
+    }
+  }]
 });
 
 const Board = mongoose.models.Board || mongoose.model('Board', BoardSchema);

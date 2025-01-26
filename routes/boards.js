@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Board = require('../models/Board');
+const User = require('../models/User');
 const List = require('../models/List');
 const Card = require('../models/Card');
 const { authenticateToken } = require('./auth');
@@ -22,6 +23,80 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar quadro' });
   }
 });
+
+
+// Rota para compartilhar o quadro
+router.post('/:id/share', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, mode } = req.body;
+
+    // Encontre o usuário pelo email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'Esse e-mail não está cadastrado.' });
+    }
+
+    // Verifique se o e-mail é do próprio usuário
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ error: 'Esse e-mail pertence a você.' });
+    }
+
+    // Encontre o quadro pelo ID
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    // Verifique se o usuário já está compartilhado com o quadro
+    const sharedUser = board.sharedWith.find(u => u.user.toString() === user._id.toString());
+    if (sharedUser) {
+      return res.status(400).json({ error: 'Você já está compartilhando esse quadro com esse usuário.' });
+    }
+
+    // Adicione o usuário à lista de compartilhamento do quadro
+    board.sharedWith.push({ user: user._id, mode });
+    await board.save();
+    
+    res.status(200).json({ message: 'Quadro compartilhado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao compartilhar quadro:', error);
+    res.status(500).json({ error: 'Erro ao compartilhar quadro' });
+  }
+});
+
+// Rota para buscar quadros compartilhados com o usuário
+router.get('/shared-with-me', authenticateToken, async (req, res) => {
+  try {
+    const boards = await Board.find({ 'sharedWith.user': req.user.id }).populate('lists');
+    res.status(200).json(boards);
+  } catch (error) {
+    console.error('Erro ao buscar quadros compartilhados com você:', error);
+    res.status(500).json({ error: 'Erro ao buscar quadros compartilhados com você' });
+  }
+});
+
+// Rota para remover compartilhamento de um quadro
+router.put('/:id/remove-share', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    board.sharedWith = board.sharedWith.filter(sharedUser => sharedUser.user.toString() !== req.user.id);
+
+    await board.save();
+    res.status(200).json({ message: 'Compartilhamento removido com sucesso' });
+  } catch (error) {
+    console.error('Erro ao remover compartilhamento do quadro:', error);
+    res.status(500).json({ error: 'Erro ao remover compartilhamento do quadro' });
+  }
+});
+
+
 
 // Rota para buscar todos os quadros
 router.get('/', authenticateToken, async (req, res) => {
