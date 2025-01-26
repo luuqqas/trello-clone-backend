@@ -6,14 +6,21 @@ const jwt = require('jsonwebtoken');
 
 // Função de Autenticação
 function authenticateToken(req, res, next) {
-  const token = req.header('Authorization')?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Acesso negado' });
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-  jwt.verify(token, 'secreta', (err, user) => {
-    if (err) return res.status(403).json({ error: 'Token inválido' });
-    req.user = user;
+  if (token == null) {
+    return res.status(401).json({ error: 'Acesso negado' });
+  }
+
+  jwt.verify(token, 'secreta', (err, user) => { // Certifique-se de que a string secreta é a mesma utilizada durante a geração do token
+    if (err) {
+      return res.status(403).json({ error: 'Token inválido' });
+    }
+    req.user = { id: user.id };
     next();
   });
+  
 }
 
 // Rota de Registro
@@ -36,24 +43,15 @@ router.post('/register', async (req, res) => {
 
 // Rota de Login
 router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: 'Credenciais inválidas' });
-    }
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Credenciais inválidas' });
-    }
-
-    const token = jwt.sign({ id: user._id }, 'secreta', { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login bem-sucedido', token });
-  } catch (error) {
-    console.error('Erro ao fazer login:', error);
-    res.status(500).json({ error: 'Erro ao fazer login' });
+  if (!user || !await bcrypt.compare(password, user.password)) {
+    return res.status(401).json({ error: 'Credenciais inválidas' });
   }
+
+  const accessToken = jwt.sign({ id: user._id, email: user.email }, 'secreta', { expiresIn: '1h' }); // Certifique-se de que a string secreta é a mesma
+  res.json({ accessToken });
 });
 
 module.exports = { router, authenticateToken };

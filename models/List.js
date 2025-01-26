@@ -1,21 +1,12 @@
 // models/List.js
 const mongoose = require('mongoose');
 
-const listSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  cards: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Card'
-  }],
-  board: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Board'
-  }
+const ListSchema = new Schema({
+  title: String,
+  board: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
+  cards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Card' }]
 });
 
-const List = mongoose.model('List', listSchema);
+const List = mongoose.models.List || mongoose.model('List', ListSchema);
 
 module.exports = List;

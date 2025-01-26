@@ -1,20 +1,34 @@
 // models/Card.js
 const mongoose = require('mongoose');
 
-const cardSchema = new mongoose.Schema({
+const BoardSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true // Garantir que o título é obrigatório
   },
-  description: {
-    type: String
+  backgroundColor: {
+    type: String,
+    default: '#ffffff' // Adicionar valor padrão
   },
-  list: {
+  textColor: {
+    type: String,
+    default: '#000000' // Adicionar valor padrão
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true // Garantir que o campo `createdBy` é obrigatório
+  },
+  lists: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'List'
+  }],
+  favorite: {
+    type: Boolean,
+    default: false
   }
 });
 
-const Card = mongoose.model('Card', cardSchema);
+const Board = mongoose.models.Board || mongoose.model('Board', BoardSchema);
 
-module.exports = Card;
+module.exports = Board;
