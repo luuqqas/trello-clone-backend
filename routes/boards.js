@@ -89,7 +89,6 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-
 router.put('/color/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -114,6 +113,7 @@ router.put('/color/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Erro ao atualizar quadro' });
   }
 });
+
 
 
 router.put('/:boardId/lists/reorder', authenticateToken, async (req, res) => {
