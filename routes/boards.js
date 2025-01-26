@@ -5,6 +5,7 @@ const List = require('../models/List');
 const Card = require('../models/Card');
 const { authenticateToken } = require('./auth');
 
+// Rota para criar um novo quadro
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { title, backgroundColor, textColor } = req.body;
@@ -12,7 +13,7 @@ router.post('/', authenticateToken, async (req, res) => {
       title: title || 'Novo Quadro',
       backgroundColor: backgroundColor || '#ffffff',
       textColor: textColor || '#000000',
-      createdBy: req.user.id // Certifique-se de que este campo está sendo definido corretamente
+      createdBy: req.user.id
     });
     await newBoard.save();
     res.status(201).json(newBoard);
@@ -22,6 +23,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para buscar todos os quadros
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const boards = await Board.find({ createdBy: req.user.id }).populate('lists');
@@ -32,6 +34,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para remover um quadro
 router.delete('/delete/:id', authenticateToken, async (req, res) => {
   try {
     const board = await Board.findById(req.params.id).populate('lists');
@@ -43,7 +46,6 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado' });
     }
 
-    // Remover todas as listas e os cartões associados ao quadro
     for (const listId of board.lists) {
       const list = await List.findById(listId);
       if (list) {
@@ -60,6 +62,7 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para reordenar listas dentro de um quadro
 router.put('/:boardId/lists/reorder', authenticateToken, async (req, res) => {
   try {
     const { boardId } = req.params;
@@ -80,6 +83,47 @@ router.put('/:boardId/lists/reorder', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para atualizar o título do quadro
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    board.title = title;
+    await board.save();
+
+    res.status(200).json(board);
+  } catch (error) {
+    console.error('Erro ao atualizar título do quadro:', error);
+    res.status(500).json({ error: 'Erro ao atualizar título do quadro' });
+  }
+});
+
+// Rota para favoritar/desfavoritar um quadro
+// Rota para favoritar/desfavoritar um quadro
+router.put('/:id/favorite', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const board = await Board.findById(id);
+    if (!board) {
+      return res.status(404).json({ error: 'Quadro não encontrado' });
+    }
+
+    board.favorite = !board.favorite;
+    await board.save();
+
+    res.status(200).json(board);
+  } catch (error) {
+    console.error('Erro ao favoritar quadro:', error);
+    res.status(500).json({ error: 'Erro ao favoritar quadro' });
+  }
+});
 
 
 module.exports = router;

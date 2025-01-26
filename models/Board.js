@@ -25,7 +25,7 @@ const BoardSchema = new Schema({
   }],
   favorite: {
     type: Boolean,
-    default: false
+    default: false // Adicionar valor padrão para favoritos
   }
 });
 
