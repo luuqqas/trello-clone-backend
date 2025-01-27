@@ -4,24 +4,34 @@ const Card = require('../models/Card');
 const List = require('../models/List');
 const { authenticateToken } = require('./auth');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+router.get('/:id/file', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('Buscando arquivo para o card ID:', id);
+    const card = await Card.findById(id);
+    if (!card || !card.file) {
+      console.log('Arquivo não encontrado para o card ID:', id);
+      return res.status(404).json({ error: 'Arquivo não encontrado' });
     }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${card.fileName}"` // Para exibir no navegador
+    });
+
+    console.log('Enviando arquivo...');
+    res.send(card.file); // Envia o buffer do arquivo
+  } catch (error) {
+    console.error('Erro ao buscar arquivo:', error);
+    res.status(500).json({ error: 'Erro ao buscar arquivo' });
   }
 });
 
-const upload = multer({ storage });
 
 router.post('/', authenticateToken, async (req, res) => {
   try {
@@ -108,7 +118,7 @@ router.put('/:id', authenticateToken,  upload.single('file'), async (req, res) =
     card.content = content;
 
     if (req.file) {
-      card.filePath = req.file.path; // Salva o caminho do arquivo
+      card.file = req.file.buffer; // Salva o caminho do arquivo
       card.fileName = req.file.originalname; // Salva o nome original do arquivo
     }
     await card.save();

@@ -7,9 +7,11 @@ const jwt = require('jsonwebtoken');
 // Função de Autenticação
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
+  console.log('Cabeçalho Authorization recebido:', authHeader);
   const token = authHeader && authHeader.split(' ')[1];
 
   if (token == null) {
+    console.error('Token ausente no cabeçalho Authorization');
     return res.status(401).json({ error: 'Acesso negado' });
   }
 

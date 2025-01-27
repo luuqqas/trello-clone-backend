@@ -12,7 +12,7 @@ const CardSchema = new Schema({
     ref: 'List',
     required: true
   },
-  filePath: { type: String, default: null }, // Caminho do arquivo salvo
+  file: Buffer, // Caminho do arquivo salvo
   fileName: { type: String, default: null } // Nome do arquivo
 
 });
