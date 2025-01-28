@@ -1,24 +1,23 @@
-// models/Card.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const BoardSchema = new Schema({
   title: {
     type: String,
-    required: true // Garantir que o título é obrigatório
+    required: true
   },
   backgroundColor: {
     type: String,
-    default: '#ffffff' // Adicionar valor padrão
+    default: '#ffffff'
   },
   textColor: {
     type: String,
-    default: '#000000' // Adicionar valor padrão
+    default: '#000000'
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true // Garantir que o campo `createdBy` é obrigatório
+    required: true
   },
   lists: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -26,8 +25,19 @@ const BoardSchema = new Schema({
   }],
   favorite: {
     type: Boolean,
-    default: false // Adicionar valor padrão para favoritos
-  }
+    default: false
+  },
+  sharedWith: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    mode: {
+      type: String,
+      enum: ['edit', 'view'],
+      default: 'view'
+    }
+  }]
 });
 
 const Board = mongoose.models.Board || mongoose.model('Board', BoardSchema);
