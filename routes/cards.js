@@ -8,7 +8,6 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-
 router.get('/:id/file', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -25,13 +24,14 @@ router.get('/:id/file', authenticateToken, async (req, res) => {
     });
 
     console.log('Enviando arquivo...');
-    res.send(card.file); // Envia o buffer do arquivo
+    return res.send(card.file); // Envia o buffer do arquivo
   } catch (error) {
     console.error('Erro ao buscar arquivo:', error);
-    res.status(500).json({ error: 'Erro ao buscar arquivo' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro ao buscar arquivo' });
+    }
   }
 });
-
 
 router.post('/', authenticateToken, async (req, res) => {
   try {
@@ -49,10 +49,12 @@ router.post('/', authenticateToken, async (req, res) => {
     list.cards.push(newCard._id);
     await list.save();
     
-    res.status(201).json(newCard);
+    return res.status(201).json(newCard);
   } catch (error) {
     console.error('Erro ao criar cartão:', error);
-    res.status(500).json({ error: 'Erro ao criar cartão' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro ao criar cartão' });
+    }
   }
 });
 
@@ -83,10 +85,12 @@ router.put('/move/:id', authenticateToken, async (req, res) => {
     card.updatedAt = Date.now(); // Atualiza a data de modificação
     await card.save();
 
-    res.status(200).json(card);
+    return res.status(200).json(card);
   } catch (error) {
     console.error('Erro ao mover cartão:', error);
-    res.status(500).json({ error: 'Erro ao mover cartão' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro ao mover cartão' });
+    }
   }
 });
 
@@ -108,14 +112,16 @@ router.put('/:id', authenticateToken, upload.single('file'), async (req, res) =>
     card.updatedAt = Date.now(); 
     await card.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       content: card.content,
       fileName: card.fileName || null,
       updatedAt: card.updatedAt 
     });
   } catch (error) {
     console.error('Erro ao atualizar cartão:', error);
-    res.status(500).json({ error: 'Erro ao atualizar cartão' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro ao atualizar cartão' });
+    }
   }
 });
 
@@ -133,10 +139,12 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     await Card.deleteOne({ _id: card._id });
-    res.status(200).json({ message: 'Cartão removido com sucesso' });
+    return res.status(200).json({ message: 'Cartão removido com sucesso' });
   } catch (error) {
     console.error('Erro ao remover cartão:', error);
-    res.status(500).json({ error: 'Erro ao remover cartão' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro ao remover cartão' });
+    }
   }
 });
 

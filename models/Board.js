@@ -36,6 +36,10 @@ const BoardSchema = new Schema({
       type: String,
       enum: ['edit', 'view'],
       default: 'view'
+    },
+    favorite: {
+      type: Boolean,
+      default: false
     }
   }]
 });

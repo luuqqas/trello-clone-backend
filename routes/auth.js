@@ -22,7 +22,6 @@ function authenticateToken(req, res, next) {
     req.user = { id: user.id };
     next();
   });
-  
 }
 
 // Rota de Registro
@@ -44,6 +43,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Rota de Login
+// Rota de Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -53,7 +53,8 @@ router.post('/login', async (req, res) => {
   }
 
   const accessToken = jwt.sign({ id: user._id, email: user.email }, 'secreta', { expiresIn: '1h' }); // Certifique-se de que a string secreta é a mesma
-  res.json({ accessToken });
+  res.json({ user, accessToken }); // Adicionar os dados do usuário na resposta
 });
+
 
 module.exports = { router, authenticateToken };

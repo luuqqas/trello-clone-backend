@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 
 require('./config');
-const authRoutes = require('./routes/auth').router;
+const authRoutes = require('./routes/auth').router; // Certifique-se de que o caminho está correto
 const boardRoutes = require('./routes/boards');
 const listRoutes = require('./routes/lists');
 const cardRoutes = require('./routes/cards');
