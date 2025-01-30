@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/teste3', { // Use o nome do banco de dados correto
+mongoose.connect('mongodb://127.0.0.1:27017/teste3', { 
   useNewUrlParser: true,
   useUnifiedTopology: true
 });

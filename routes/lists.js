@@ -92,7 +92,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     // Remover todos os cartões contidos na lista
     await Card.deleteMany({ list: list._id });
 
-    await list.deleteOne(); // Use deleteOne para remover a lista
+    await list.deleteOne(); 
 
     res.status(200).json({ message: 'Lista removida com sucesso' });
   } catch (error) {
