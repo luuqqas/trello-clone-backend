@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boards');
 const listRoutes = require('./routes/lists');
 const cardRoutes = require('./routes/cards');
+const checkPermissions = require('./middlewares/permissions'); // Importação do middleware
 
 const app = express();
 const PORT = 3000;

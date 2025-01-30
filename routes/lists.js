@@ -5,6 +5,7 @@ const Card = require('../models/Card');
 const Board = require('../models/Board');
 const { authenticateToken } = require('./auth');
 
+// Rota para criar uma nova lista
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { title, boardId } = req.body;
@@ -23,6 +24,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para buscar listas por boardId
 router.get('/:boardId', authenticateToken, async (req, res) => {
   try {
     const { boardId } = req.params;
@@ -65,6 +67,7 @@ router.put('/:id/move', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para atualizar o título de uma lista
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,6 +85,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para remover uma lista
+// Rota para remover uma lista
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
